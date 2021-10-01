@@ -49,8 +49,18 @@ def trainee_detail(request, pk):
 @api_view(['GET', 'DELETE', 'PUT'])
 def find_trainee_by_name(request):
     if request.method == 'GET':
-        trainees = TraineeDB.objects.select_related('person')
+        from django.db.models import Value as V
+        from django.db.models.functions import Concat
+        from django.db.models import Q,F
+
+        trainees = TraineeDB.objects.select_related('person').annotate(full_name=Concat('first_name', V(' '), 'last_name')).filter(full_name__icontains="ליעד חזות")
+        # trainees = TraineeDB.objects.select_related('person')
+        TraineeDB.objects.select_related('person').annotate(
+            full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
+            Q(full_name__icontains=F('חזת')) |
+            Q(person__first_name='חזת') |
+            Q(person__last_name='חזת'))
         for trainee in trainees:
-            print(trainee.person.birth_date , trainee.person.first_name)
+            print(trainee.person)
         # serializer = TraineeSerializer(trainee)
         return Response("trainee.data")
