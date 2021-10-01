@@ -1,4 +1,4 @@
-"""Bfit URL Configuration
+"""bfit URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -14,8 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('account/', include('user_app.api.urls')),
+    path('sport_type/', include('sport_type_app.api.urls')),
+    path('trainee/', include('trainee_app.api.urls')),
+    path('person/', include('person_app.api.urls')),
+    path('coach/', include('coach_app.api.urls')),
 ]
