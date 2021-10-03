@@ -6,8 +6,8 @@ from datetime import date
 
 
 class TraineeSerializer(serializers.ModelSerializer):
-    # sport_type = SportTypeSerializer(many=True, read_only=True)
-    # person = PersonSerializer(many=False, read_only=True)
+    fav_sport = SportTypeSerializer(many=True, read_only=True)
+    person = PersonSerializer(many=False, read_only=True)
 
     class Meta:
         model = TraineeDB

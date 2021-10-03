@@ -8,5 +8,5 @@ from trainee_app.api.views import trainee_list , trainee_detail,find_trainee_by_
 urlpatterns = [
     path('trainee_list/', trainee_list, name='trainee_list'),
     path('trainee_detail/<int:pk>/', trainee_detail, name='trainee_detail'),
-    path('find_trainee_by_name/', find_trainee_by_name, name='find_trainee_by_name'),
+    path('find_trainee_by_name/<str:name>/', find_trainee_by_name, name='find_trainee_by_name'),
 ]

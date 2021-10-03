@@ -6,6 +6,8 @@ from datetime import date
 
 
 class CoachSerializer(serializers.ModelSerializer):
+    fav_sport = SportTypeSerializer(many=True, read_only=True)
+    person = PersonSerializer(many=False, read_only=True)
 
     class Meta:
         model = CoachDB
