@@ -1,6 +1,6 @@
 from django.db import models
 from abc import ABC, abstractmethod
-from person_app.models import PersonDB
+# from person_app.models import PersonDB
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 

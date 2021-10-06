@@ -1,5 +1,7 @@
 from django.db import models
 from abc import ABC, abstractmethod
+
+# from trainee_app.models import TraineeDB
 from user_app.models import UserDB
 from django.conf import settings
 
@@ -19,6 +21,7 @@ class PersonDB(models.Model):
     birth_date = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES,)
     is_coach = models.BooleanField(default=False)
+    # trainee = models.OneToOneField(TraineeDB, related_name="person",on_delete=models.SET_NULL())
     # TODO:
     #   country = models.BooleanField(default=True)
     #   city = models.BooleanField(default=False)

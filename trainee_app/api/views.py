@@ -1,15 +1,18 @@
 from django.db.models.functions import Concat
 from django.db.models import Value as V, Q
 from django.http import HttpResponse
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from trainee_app.api.serializer import TraineeSerializer
 from trainee_app.models import TraineeDB
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.core import serializers
-
+from person_app.models import PersonDB
+from person_app.api.serializer import PersonSerializer
+from sport_type_app.models import SportTypeDB
 from user_app import models
+
 
 
 @api_view(['GET', 'POST'])
@@ -22,10 +25,31 @@ def trainee_list(request):
     if request.method == 'POST':
         serializer = TraineeSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            person_check = TraineeDB.objects.filter(person=request.data.get("person"))
+            if not person_check.exists():
+                trainee_object = TraineeDB.objects.create(person=PersonDB.objects.get(pk=request.data["person"]))
+                trainee_object.save()
+
+                for fav in request.data["sport_type"]:
+                    fav_obj = SportTypeDB.objects.get(pk=fav)
+                    trainee_object.fav_sport.add(fav_obj)
+
+                serializer = TraineeSerializer(trainee_object)
+
+            # serializer.save(person=PersonDB.objects.get(pk=request.data.get("person")),
+            #                 fav_sport=SportTypeDB.objects.filter(id__in=request.data.get("fav_sport")))
+            # serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response({"error": "the trainee already exist"})
         else:
             return Response(serializer.errors)
+
+
+
+# class traineeVS(viewsets.ModelViewSet):
+#     queryset = TraineeDB.objects.all()
+#     serializer_class = TraineeSerializer
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -39,7 +63,10 @@ def trainee_detail(request, pk):
         trainee = get_object_or_404(TraineeDB, pk=pk)
         serializer = TraineeSerializer(trainee, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            trainee.person = get_object_or_404(PersonDB, pk=request.data["person"])
+            trainee.fav_sport.set(request.data["fav_sport"])
+
+            serializer = TraineeSerializer(trainee)
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
@@ -52,7 +79,7 @@ def trainee_detail(request, pk):
 
 # find trainee by full name (first 10 matches)
 @api_view(['GET', 'DELETE', 'PUT'])
-def find_trainee_by_name(request,name):
+def find_trainee_by_name(request, name):
     if request.method == 'GET':
         if name is None:
             return Response("name is empty")

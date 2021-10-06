@@ -12,3 +12,8 @@ class CoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoachDB
         fields = "__all__"
+
+
+def validate_person(self, value):
+    if not self.person.is_coach():
+        raise serializers.ValidationError("the user have to be coach")

@@ -3,6 +3,14 @@ from person_app.models import PersonDB
 from datetime import date
 
 
+class PersonRelatedField(serializers.StringRelatedField):
+    def to_representation(self, value):
+        return PersonSerializer(value,many=False).data
+
+    def to_internal_value(self, data):
+        return data
+
+
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonDB
