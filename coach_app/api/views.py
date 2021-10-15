@@ -24,16 +24,24 @@ def coach_list(request):
         serializer = CoachSerializer(data=request.data)
         if serializer.is_valid():
             person_check = CoachDB.objects.filter(person=request.data.get("person"))
+
+            person_coach = PersonDB.objects.get(pk=request.data.get("person"))
+            if not person_coach.is_coach:
+                return Response({"error":"the user is not coach"}, status=status.HTTP_404_NOT_FOUND)
+            # if person_coach
+            fav_arr = []
+            # add favorite sport to coach list
+            for fav in request.data["fav_sport"]:
+                fav_obj = get_object_or_404(SportTypeDB, pk=fav)
+                fav_arr.append(fav_obj)
             if not person_check.exists():
                 coach_object = CoachDB.objects.create(
                     person=PersonDB.objects.get(pk=request.data["person"]),
                     rating=request.data["rating"],
                     description=request.data["description"]
                 )
-
-                for fav in request.data["fav_sport"]:
-                    fav_obj = SportTypeDB.objects.get(pk=fav)
-                    coach_object.fav_sport.add(fav_obj)
+                for fav in fav_arr:
+                    coach_object.fav_sport.add(fav)
                 coach_object.save()
 
                 serializer = CoachSerializer(coach_object)
@@ -46,7 +54,6 @@ def coach_list(request):
                 return Response({"error": "the coach already exist"})
         else:
             return Response(serializer.errors)
-
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def coach_detail(request, pk):
@@ -84,6 +91,7 @@ def find_coach_by_name(request, name):
     if request.method == 'GET':
         if name is None:
             return Response("name is empty")
+
         name = name.strip()
         trainees = CoachDB.objects.select_related('person').annotate(
             full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(

@@ -13,7 +13,6 @@ class CoachSerializer(serializers.ModelSerializer):
         model = CoachDB
         fields = "__all__"
 
-
-def validate_person(self, value):
-    if not self.person.is_coach():
-        raise serializers.ValidationError("the user have to be coach")
+    # def validate(self, value):
+    #     if not self.validated_data.is_coach:
+    #         raise serializers.ValidationError("the user have to be coach")

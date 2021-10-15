@@ -19,7 +19,7 @@ from user_app import models
 def logout_view(request):
     if request.method == 'POST':
         request.user.auth_token.delete()
-        return Response({'error': 'logout successfully'}, status=status.HTTP_200_OK)
+        return Response({'success': 'logout successfully'}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST', ])
@@ -37,7 +37,14 @@ def registration_view(request):
             data['response'] = 'Registration Successful'
 
         else:
-            data = serializer.errors
+            if UserDB.objects.filter(email=serializer.data['email']).exists():
+                data['error'] = 'Email is already exist !'
+
+            elif serializer.data['email'] is '' or \
+                    serializer.data['password'] is '' or \
+                    serializer.data['password2'] is '':
+                data['error'] = 'Some field is blank !'
+            return Response(data)
 
         return Response(data)
 

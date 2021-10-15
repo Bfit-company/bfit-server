@@ -15,6 +15,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
+        error_messages = {"password": {"error": "The field is empty"},
+                          "password2": {"error": "The field is empty"}}
 
         # overwrite the save method because the pass2 and validate the email
 
