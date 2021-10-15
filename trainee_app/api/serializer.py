@@ -23,6 +23,8 @@ class TraineeSerializer(serializers.ModelSerializer):
         # read_only_fields = ["person",]
         # depth = 1
 
+    def save(self):
+        self.validated_data
     # def create(self, validated_data):
     #     person = validated_data.pop("person",None)
     #     instance = self.Meta.model(**validated_data)

@@ -8,6 +8,8 @@ from coach_app.models import CoachDB
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from person_app.models import PersonDB
+from sport_type_app.models import SportTypeDB
 from user_app import models
 
 
@@ -21,8 +23,27 @@ def coach_list(request):
     if request.method == 'POST':
         serializer = CoachSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            person_check = CoachDB.objects.filter(person=request.data.get("person"))
+            if not person_check.exists():
+                coach_object = CoachDB.objects.create(
+                    person=PersonDB.objects.get(pk=request.data["person"]),
+                    rating=request.data["rating"],
+                    description=request.data["description"]
+                )
+
+                for fav in request.data["fav_sport"]:
+                    fav_obj = SportTypeDB.objects.get(pk=fav)
+                    coach_object.fav_sport.add(fav_obj)
+                coach_object.save()
+
+                serializer = CoachSerializer(coach_object)
+
+                # serializer.save(person=PersonDB.objects.get(pk=request.data.get("person")),
+                #                 fav_sport=SportTypeDB.objects.filter(id__in=request.data.get("fav_sport")))
+                # serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response({"error": "the coach already exist"})
         else:
             return Response(serializer.errors)
 
@@ -35,13 +56,21 @@ def coach_detail(request, pk):
         return Response(serializer.data)
 
     if request.method == 'PUT':
-        trainee = get_object_or_404(CoachDB, pk=pk)
-        serializer = CoachSerializer(trainee, data=request.data)
+        coach = get_object_or_404(CoachDB, pk=pk)
+        serializer = CoachSerializer(coach, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            coach.person = get_object_or_404(PersonDB, pk=request.data["person"])
+            coach.description = request.data["description"]
+            coach.rating = request.data["rating"]
+            coach.save()
+
+            coach.fav_sport.set(request.data["fav_sport"])
+
+            serializer = CoachSerializer(coach)
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
 
     if request.method == 'DELETE':
         trainee = get_object_or_404(CoachDB, pk=pk)

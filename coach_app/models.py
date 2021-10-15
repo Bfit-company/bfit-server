@@ -8,7 +8,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 class CoachDB(models.Model):
     person = models.OneToOneField(PersonDB, on_delete=models.CASCADE, related_name='coach_detail')
     fav_sport = models.ManyToManyField(SportTypeDB)
-    raiting = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)],blank=True)
+    rating = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)],blank=True)
     description = models.CharField(max_length=255,blank=True)
 
     # todo:

@@ -8,7 +8,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 class SportTypeDB(models.Model):
     name = models.CharField(verbose_name='name', max_length=255, unique=True)
-    raiting = models.IntegerField(default=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    rating = models.IntegerField(default=1, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    sport_image = models.ImageField(null=False, blank=False, upload_to="images/")
 
     # TODO:
     #   country = models.BooleanField(default=True)

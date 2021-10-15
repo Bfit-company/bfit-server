@@ -30,7 +30,7 @@ def trainee_list(request):
                 trainee_object = TraineeDB.objects.create(person=PersonDB.objects.get(pk=request.data["person"]))
                 trainee_object.save()
 
-                for fav in request.data["sport_type"]:
+                for fav in request.data["fav_sport"]:
                     fav_obj = SportTypeDB.objects.get(pk=fav)
                     trainee_object.fav_sport.add(fav_obj)
 
@@ -64,6 +64,7 @@ def trainee_detail(request, pk):
         serializer = TraineeSerializer(trainee, data=request.data)
         if serializer.is_valid():
             trainee.person = get_object_or_404(PersonDB, pk=request.data["person"])
+            trainee.save()
             trainee.fav_sport.set(request.data["fav_sport"])
 
             serializer = TraineeSerializer(trainee)

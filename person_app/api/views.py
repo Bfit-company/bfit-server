@@ -2,11 +2,13 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view,permission_classes
+
+from coach_app.models import CoachDB
 from person_app.api.serializer import PersonSerializer
 from person_app.models import PersonDB
 from rest_framework.response import Response
 
-
+from trainee_app.models import TraineeDB
 from user_app import models
 
 @api_view(['GET', 'POST'])
@@ -47,6 +49,14 @@ def person_detail(request, pk):
         return Response("Delete Successfully", status=status.HTTP_200_OK)
 
 
+# this function checks if the person already used in trainee or coach
+def check_if_person_used(data):
+    coach_check = CoachDB.objects.filter(person=data)
+    trainee_check = TraineeDB.objects.filter(person=data)
+
+    if not trainee_check.exists() and not coach_check.exists():
+        return True
+    return False
 # @api_view(['GET', 'DELETE', 'PUT'])
 # def find_person_by_name(request, pk):
 #     if request.method == 'GET':

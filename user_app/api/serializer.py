@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from user_app.models import UserDB
+
 User = get_user_model()
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
@@ -32,6 +35,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.save()
         return account
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDB
+        fields = ('id','email')
 
 # #todo: in future
 # class LoginSerializer(serializers.ModelSerializer):
