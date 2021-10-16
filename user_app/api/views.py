@@ -35,6 +35,7 @@ def registration_view(request):
 
         if serializer.is_valid():
             account = serializer.save()
+            data['id'] = account.id
             data['email'] = account.email
             token = Token.objects.get(user=account).key
             data['token'] = token
@@ -55,7 +56,7 @@ def registration_view(request):
 
 #
 @api_view(['POST', ])
-def liad(request):
+def full_user_create(request):
     data = {}
     #
     # # create user

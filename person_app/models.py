@@ -23,6 +23,7 @@ class PersonDB(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES,)
     is_coach = models.BooleanField(default=False)
     fav_sport = models.ManyToManyField(SportTypeDB)
+    # profile_image = models.URLField(null=True, blank=True)
 
     # trainee = models.OneToOneField(TraineeDB, related_name="person",on_delete=models.SET_NULL())
     # TODO:
