@@ -36,7 +36,7 @@ def trainee_list(request):
                     serializer.save(person=PersonDB.objects.get(pk=person_id))
                     return Response(serializer.data)
                 except ObjectDoesNotExist:
-                    return Response({"error": "the trainee already exist"})
+                    return Response({"error": "the trainee already exist"},status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

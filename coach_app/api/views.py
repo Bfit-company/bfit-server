@@ -89,3 +89,19 @@ def find_coach_by_name(request, name):
 
         serializer = CoachSerializer(trainees, many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET', 'DELETE', 'PUT'])
+def coach_list_by_sport_type(request, pk):
+    if request.method == 'GET':
+        if pk is None:
+            return Response("pk is empty")
+
+        # coaches = CoachDB.objects.select_related('person').filter(
+        #     Q(fav_sport=pk))[:10]
+
+        coaches = PersonDB.objects.filter(
+                   Q(fav_sport=pk))[:10]
+
+        serializer = CoachSerializer(coaches, many=True)
+        return Response(serializer.data)
