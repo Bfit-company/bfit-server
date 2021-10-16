@@ -23,37 +23,25 @@ def coach_list(request):
     if request.method == 'POST':
         serializer = CoachSerializer(data=request.data)
         if serializer.is_valid():
-            person_check = CoachDB.objects.filter(person=request.data.get("person"))
-
-            person_coach = PersonDB.objects.get(pk=request.data.get("person"))
+            person_id = request.data.get("person")
+            person_check = CoachDB.objects.filter(person=person_id)
+            person_coach = PersonDB.objects.get(pk=person_id)
+            # check if the person is not coach
             if not person_coach.is_coach:
-                return Response({"error":"the user is not coach"}, status=status.HTTP_404_NOT_FOUND)
-            # if person_coach
-            fav_arr = []
-            # add favorite sport to coach list
-            for fav in request.data["fav_sport"]:
-                fav_obj = get_object_or_404(SportTypeDB, pk=fav)
-                fav_arr.append(fav_obj)
+                return Response({"error": "the user is not coach"})
             if not person_check.exists():
-                coach_object = CoachDB.objects.create(
-                    person=PersonDB.objects.get(pk=request.data["person"]),
-                    rating=request.data["rating"],
-                    description=request.data["description"]
-                )
-                for fav in fav_arr:
-                    coach_object.fav_sport.add(fav)
-                coach_object.save()
-
-                serializer = CoachSerializer(coach_object)
-
-                # serializer.save(person=PersonDB.objects.get(pk=request.data.get("person")),
-                #                 fav_sport=SportTypeDB.objects.filter(id__in=request.data.get("fav_sport")))
-                # serializer.save()
+                serializer.save(person=PersonDB.objects.get(pk=person_id))
                 return Response(serializer.data)
             else:
                 return Response({"error": "the coach already exist"})
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def coach_detail(request, pk):

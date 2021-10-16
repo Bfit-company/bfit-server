@@ -12,6 +12,8 @@ from person_app.models import PersonDB
 from person_app.api.serializer import PersonSerializer
 from sport_type_app.models import SportTypeDB
 from user_app import models
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 
@@ -25,25 +27,19 @@ def trainee_list(request):
     if request.method == 'POST':
         serializer = TraineeSerializer(data=request.data)
         if serializer.is_valid():
-            person_check = TraineeDB.objects.filter(person=request.data.get("person"))
+            person_id = request.data.get("person")
+            person_check = TraineeDB.objects.filter(person=person_id)
+
+            # check if the person is not coach
             if not person_check.exists():
-                trainee_object = TraineeDB.objects.create(person=PersonDB.objects.get(pk=request.data["person"]))
-                trainee_object.save()
+                try:
+                    serializer.save(person=PersonDB.objects.get(pk=person_id))
+                    return Response(serializer.data)
+                except ObjectDoesNotExist:
+                    return Response({"error": "the trainee already exist"})
 
-                for fav in request.data["fav_sport"]:
-                    fav_obj = SportTypeDB.objects.get(pk=fav)
-                    trainee_object.fav_sport.add(fav_obj)
-
-                serializer = TraineeSerializer(trainee_object)
-
-            # serializer.save(person=PersonDB.objects.get(pk=request.data.get("person")),
-            #                 fav_sport=SportTypeDB.objects.filter(id__in=request.data.get("fav_sport")))
-            # serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response({"error": "the trainee already exist"})
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

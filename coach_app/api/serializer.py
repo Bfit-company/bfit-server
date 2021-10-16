@@ -6,12 +6,12 @@ from datetime import date
 
 
 class CoachSerializer(serializers.ModelSerializer):
-    fav_sport = SportTypeSerializer(many=True, read_only=True)
-    person = PersonSerializer(many=False, read_only=True)
+    person = PersonSerializer(read_only=True)
 
     class Meta:
         model = CoachDB
         fields = "__all__"
+
 
     # def validate(self, value):
     #     if not self.validated_data.is_coach:

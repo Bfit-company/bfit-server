@@ -1,5 +1,6 @@
 from django.db import models
 from abc import ABC, abstractmethod
+from sport_type_app.models import SportTypeDB
 
 # from trainee_app.models import TraineeDB
 from user_app.models import UserDB
@@ -21,6 +22,8 @@ class PersonDB(models.Model):
     birth_date = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES,)
     is_coach = models.BooleanField(default=False)
+    fav_sport = models.ManyToManyField(SportTypeDB)
+
     # trainee = models.OneToOneField(TraineeDB, related_name="person",on_delete=models.SET_NULL())
     # TODO:
     #   country = models.BooleanField(default=True)

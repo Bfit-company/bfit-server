@@ -8,7 +8,6 @@ from django.conf import settings
 # Create your models here.
 class TraineeDB(models.Model):
     person = models.OneToOneField(PersonDB, on_delete=models.CASCADE,related_name='person',unique=True)
-    fav_sport = models.ManyToManyField(SportTypeDB,  related_name='fav_sport')
 
     def __str__(self):
         return self.person.first_name

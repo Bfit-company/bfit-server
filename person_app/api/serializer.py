@@ -1,17 +1,20 @@
 from rest_framework import serializers
 from person_app.models import PersonDB
 from datetime import date
+from sport_type_app.api.serializer import SportTypeSerializer
 
 
 class PersonRelatedField(serializers.StringRelatedField):
     def to_representation(self, value):
-        return PersonSerializer(value,many=False).data
+        return PersonSerializer(value, many=False).data
 
     def to_internal_value(self, data):
         return data
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    fav_sport = SportTypeSerializer(many=True, read_only=True)
+
     class Meta:
         model = PersonDB
         fields = "__all__"

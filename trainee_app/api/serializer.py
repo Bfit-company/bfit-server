@@ -9,7 +9,6 @@ from person_app.models import PersonDB
 
 
 class TraineeSerializer(serializers.ModelSerializer):
-    fav_sport = SportTypeSerializer(many=True, read_only=True)
     person = PersonSerializer(many=False,read_only=True)
     # person = PersonRelatedField()
     # person2 = serializers.SerializerMethodField("get_person2")
@@ -19,12 +18,12 @@ class TraineeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TraineeDB
-        fields = ("id","person","fav_sport")
+        fields = "__all__"
         # read_only_fields = ["person",]
         # depth = 1
 
-    def save(self):
-        self.validated_data
+    # def save(self):
+    #     self.validated_data
     # def create(self, validated_data):
     #     person = validated_data.pop("person",None)
     #     instance = self.Meta.model(**validated_data)
