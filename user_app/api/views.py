@@ -59,12 +59,12 @@ def registration_view(request):
 @api_view(['POST', ])
 def full_user_create(request):
     data = {}
-
+    BASEURL = 'http://127.0.0.1:8000/'
     # create person
     person_obj = request.data['person']
     person_obj.update({'user': request.data['person']['user']})
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    response = requests.post('http://127.0.0.1:8000/person/person_list/', data=json.dumps(person_obj), headers=headers)
+    response = requests.post(BASEURL + 'person/person_list/', data=json.dumps(person_obj), headers=headers)
     if response.status_code == status.HTTP_200_OK:
         person = json.loads(response.content)
     else:
@@ -75,7 +75,7 @@ def full_user_create(request):
         data["coach"] = {}
         coach_obj = request.data['coach']
         coach_obj.update({'person': person["id"]})
-        response = requests.post('http://127.0.0.1:8000/coach/coach_list/', data=coach_obj)
+        response = requests.post(BASEURL + 'coach/coach_list/', data=coach_obj)
         if response.status_code == status.HTTP_200_OK:
             data['coach'] = json.loads(response.content)
         else:
@@ -86,12 +86,12 @@ def full_user_create(request):
         data["trainee"] = {}
         trainee_obj = request.data['trainee']
         trainee_obj.update({'person': person["id"]})
-        response = requests.post('http://127.0.0.1:8000/trainee/trainee_list/', data=trainee_obj)
+        response = requests.post(BASEURL + 'trainee/trainee_list/', data=trainee_obj)
         if response.status_code == status.HTTP_200_OK:
             data['trainee'] = json.loads(response.content)
         else:
             data['error'] = json.loads(response.content)
-    #
+    # if there is some error while create trainee or coach delete person
     if "error" in data.keys():
         PersonDB.objects.filter(id=person["id"]).delete()
 
