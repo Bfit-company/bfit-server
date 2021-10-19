@@ -7,7 +7,7 @@ from coach_app.api.serializer import CoachSerializer
 from coach_app.models import CoachDB
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-import random
+from random import shuffle
 
 from person_app.api.serializer import PersonSerializer
 from person_app.models import PersonDB
@@ -95,8 +95,9 @@ def coach_list_by_sport_type(request, pk):
             return Response("pk is empty")
 
         # get coach list by sport type
-        coaches = CoachDB.objects.select_related('person').filter(
-            Q(person__fav_sport=pk))[:10]
+        coaches = list(CoachDB.objects.select_related('person').filter(
+            Q(person__fav_sport=pk))[:10])
+        shuffle(coaches)  # shuffle the query
 
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
@@ -106,10 +107,9 @@ def coach_list_by_sport_type(request, pk):
 @api_view(['GET'])
 def coach_list_sorted_by_rating(request):
     if request.method == 'GET':
-
         # get coach list by sport type
-        coaches = CoachDB.objects.order_by("-rating")[:10]
-
+        coaches = list(CoachDB.objects.order_by("-rating")[:10])
+        shuffle(coaches)  # shuffle the query
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
 
@@ -118,9 +118,9 @@ def coach_list_sorted_by_rating(request):
 @api_view(['GET'])
 def coach_list_sorted_by_date_joined(request):
     if request.method == 'GET':
-
         # get coach list by sport type
-        coaches = CoachDB.objects.order_by("-date_joined")[:10]
+        coaches = list(CoachDB.objects.order_by("-date_joined")[:10])
+        shuffle(coaches)  # shuffle the query
 
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
