@@ -135,10 +135,12 @@ def coach_list_search_by_parameters(request):
         rating = request.query_params.get("rating")
         date_joined = request.query_params.get("date_joined")
 
+        # if the user not send parameters
         if date_joined is '':
             date_joined = '1900-01-01'
         if rating is '':
             rating = '1'
+
         name = name.strip()
         coaches = CoachDB.objects.select_related('person').annotate(
             full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(

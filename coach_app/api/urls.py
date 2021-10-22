@@ -24,4 +24,3 @@ urlpatterns = [
     re_path('coach_list_search_by_parameters/',
             coach_list_search_by_parameters,name='coach_list_search_by_parameters')
 ]
-#/(?P<rating>[\w-]+)/(?P<name>[\w-]+)
