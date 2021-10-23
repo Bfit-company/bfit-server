@@ -64,7 +64,9 @@ def login(request):
                     data['trainee'] = serializer.data
                     is_coach = False
             except ObjectDoesNotExist:
-                return Response({"error": "the user do not finish the registration"}, status=status.HTTP_400_BAD_REQUEST)
+                data['error'] = "the user do not finish the registration"
+                data['user_id'] = user_id
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
         token, created = Token.objects.get_or_create(user=user)
         data["token"] = token.key
