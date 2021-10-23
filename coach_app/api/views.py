@@ -1,4 +1,4 @@
-from django.db.models import Q, Value as V
+from django.db.models import Q,F, Value as V
 from django.db.models.functions import Concat
 from django.http import HttpResponse
 from rest_framework import status
@@ -126,6 +126,9 @@ def coach_list_sorted_by_date_joined(request):
         return Response(serializer.data)
 
 
+MAX_LIMIT = 100
+
+
 # get coach list search by parameters sort
 @api_view(['GET'])
 def coach_list_search_by_parameters(request):
@@ -134,12 +137,19 @@ def coach_list_search_by_parameters(request):
         name = request.query_params.get("name")
         rating = request.query_params.get("rating")
         date_joined = request.query_params.get("date_joined")
+        limit = request.query_params.get("limit")
+        fav_sport = request.query_params.get("fav_sport")
 
-        # if the user not send parameters
-        if date_joined is '':
+        if date_joined == '':
             date_joined = '1900-01-01'
-        if rating is '':
+        if rating == '':
             rating = '1'
+        if limit == '':
+            limit = MAX_LIMIT  # max limit
+        if fav_sport is '':  # if empty get all sport_type
+            fav_sport = ~Q(person__fav_sport=None)  # not equal to None
+        else:
+            fav_sport = Q(person__fav_sport=fav_sport)
 
         name = name.strip()
         coaches = CoachDB.objects.select_related('person').annotate(
@@ -148,7 +158,8 @@ def coach_list_search_by_parameters(request):
             Q(person__first_name=name) |
             Q(person__last_name=name),
             Q(date_joined__gte=date_joined),
-            Q(rating__gte=rating)).order_by("-date_joined")
+            Q(rating__gte=rating),
+            fav_sport).order_by("-date_joined")[:int(limit)]
 
     serializer = CoachSerializer(coaches, many=True)
     return Response(serializer.data)
