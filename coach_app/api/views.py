@@ -152,14 +152,14 @@ def coach_list_search_by_parameters(request):
             fav_sport = Q(person__fav_sport=fav_sport)
 
         name = name.strip()
-        coaches = CoachDB.objects.select_related('person').annotate(
+        coaches = list(CoachDB.objects.select_related('person').annotate(
             full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
             Q(full_name__icontains=name) |
             Q(person__first_name=name) |
             Q(person__last_name=name),
             Q(date_joined__gte=date_joined),
             Q(rating__gte=rating),
-            fav_sport).order_by("-date_joined")[:int(limit)]
-
+            fav_sport).order_by("-date_joined")[:int(limit)])
+    shuffle(coaches)
     serializer = CoachSerializer(coaches, many=True)
     return Response(serializer.data)
