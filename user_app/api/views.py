@@ -96,6 +96,8 @@ def registration_view(request):
                     serializer.data['password'] == '' or \
                     serializer.data['password2'] == '':
                 data['error'] = 'Some field is blank !'
+            else:
+                data['error'] = 'invalid field'
             return Response(data)
 
         return Response(data)

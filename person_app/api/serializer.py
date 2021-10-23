@@ -24,8 +24,8 @@ class PersonSerializer(serializers.ModelSerializer):
     #         raise serializers.ValidationError("liad")
     #     return "s"
     def validate_birth_date(self, value):
-        if self.calculate_age(born=value) <= 12:
-            raise serializers.ValidationError("Age must be 12 and above")
+        if self.calculate_age(born=value) <= 13:
+            raise serializers.ValidationError("Age must be 13 and above")
         return value
 
     # calculate the age
