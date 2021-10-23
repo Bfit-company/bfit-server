@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import serialize
 from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -39,25 +41,34 @@ def logout_view(request):
 @api_view(['POST', ])
 def login(request):
     if request.method == 'POST':
-        data = {'': {}}
+        data = {}
 
-        user_id = UserDB.objects.get(email=request.data["username"]).id  # get the user_id
-        coach = CoachDB.objects.select_related('person').filter(Q(person__user=user_id))
-        if coach.exists():  # check if the coach exists
-            serializer = CoachSerializer(data=list(coach))
-            if serializer.is_valid():
-                data['']['coach'] = serializer.data
+        user = UserDB.objects.get(email=request.data["username"])  # get the user_id
+        user_id = user.id
+        is_coach = False
+        try:
+            coach = CoachDB.objects.select_related('person').get(Q(person__user=user_id))
+            if coach:  # check if the coach exists
+                serializer = CoachSerializer(coach)
+                data['coach'] = serializer.data
+                is_coach = True
+        except ObjectDoesNotExist:
+            is_coach = False
+            print("coach not exist")
 
-        trainee = TraineeDB.objects.select_related('person').get(Q(person__user=user_id))
-        if trainee:  # check if the trainee exists
-            serializer = TraineeSerializer(trainee)
-            data['']['trainee'] = serializer.data
+        if not is_coach:
+            try:
+                trainee = TraineeDB.objects.select_related('person').get(Q(person__user=user_id))
+                if trainee:  # check if the trainee exists
+                    serializer = TraineeSerializer(trainee)
+                    data['trainee'] = serializer.data
+                    is_coach = False
+            except ObjectDoesNotExist:
+                return Response({"error": "the user do not finish the registration"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # if not coach.exists() and not trainee.exists():  # if the user not finished the registration
-        #     data["error"] = "The user not finish the registration"
-
-        data['']["token"] = obtain_auth_token
-        return JsonResponse(data[''],status=status.HTTP_200_OK)
+        token, created = Token.objects.get_or_create(user=user)
+        data["token"] = token.key
+        return JsonResponse(data)
 
 
 @api_view(['POST', ])
