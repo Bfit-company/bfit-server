@@ -10,7 +10,8 @@ from coach_app.api.views import (
     coach_list_by_sport_type,
     coach_list_sorted_by_rating,
     coach_list_sorted_by_date_joined,
-    coach_list_search_by_parameters
+    coach_list_search_by_parameters,
+    coach_list_by_parameters_sorted
 )
 
 urlpatterns = [
@@ -21,6 +22,8 @@ urlpatterns = [
     path('coach_detail/<int:pk>/', coach_detail, name='coach_detail'),
     path('coach_list_by_sport_type/<int:pk>/', coach_list_by_sport_type, name='coach_list_by_sport_type'),
     path('find_coach_by_name/<str:name>/', find_coach_by_name, name='find_coach_by_name'),
-    re_path('coach_list_search_by_parameters/',
-            coach_list_search_by_parameters,name='coach_list_search_by_parameters')
+    path('coach_list_search_by_parameters/',
+            coach_list_search_by_parameters,name='coach_list_search_by_parameters'),
+    path('coach_list_by_parameters_sorted/',
+         coach_list_by_parameters_sorted, name='coach_list_by_parameters_sorted')
 ]

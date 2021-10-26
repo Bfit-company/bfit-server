@@ -1,4 +1,4 @@
-from django.db.models import Q,F, Value as V
+from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat
 from django.http import HttpResponse
 from rest_framework import status
@@ -129,7 +129,7 @@ def coach_list_sorted_by_date_joined(request):
 MAX_LIMIT = 100
 
 
-# get coach list search by parameters sort
+# get coach list search by parameters
 @api_view(['GET'])
 def coach_list_search_by_parameters(request):
     if request.method == 'GET':
@@ -159,7 +159,53 @@ def coach_list_search_by_parameters(request):
             Q(person__last_name=name),
             Q(date_joined__gte=date_joined),
             Q(rating__gte=rating),
-            fav_sport).order_by("-date_joined")[:int(limit)])
+            fav_sport)[:int(limit)])
+    shuffle(coaches)
+    serializer = CoachSerializer(coaches, many=True)
+    return Response(serializer.data)
+
+
+# get coach list search by parameters sorted
+@api_view(['GET'])
+def coach_list_by_parameters_sorted(request):
+    if request.method == 'GET':
+
+        name = request.query_params.get("name")
+        is_rating_sort = request.query_params.get("rating")
+        is_date_joined_sort = request.query_params.get("date_joined")
+        limit = request.query_params.get("limit")
+        fav_sport = request.query_params.get("fav_sport")
+
+        name = name.strip()
+        if limit == '':
+            limit = MAX_LIMIT  # max limit
+        if fav_sport == '':  # if empty get all sport_type
+            fav_sport = ~Q(person__fav_sport=None)  # not equal to None
+        else:
+            fav_sport = Q(person__fav_sport=fav_sport)
+
+        if is_date_joined_sort != '':
+            coaches = list(CoachDB.objects.select_related('person').annotate(
+                full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
+                Q(full_name__icontains=name) |
+                Q(person__first_name=name) |
+                Q(person__last_name=name),
+                fav_sport).order_by("-date_joined")[:int(limit)])
+        elif is_rating_sort != '':
+            coaches = list(CoachDB.objects.select_related('person').annotate(
+                full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
+                Q(full_name__icontains=name) |
+                Q(person__first_name=name) |
+                Q(person__last_name=name),
+                fav_sport).order_by('-rating')[:int(limit)])
+        else:
+            coaches = list(CoachDB.objects.select_related('person').annotate(
+                full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
+                Q(full_name__icontains=name) |
+                Q(person__first_name=name) |
+                Q(person__last_name=name),
+                fav_sport)[:int(limit)])
+
     shuffle(coaches)
     serializer = CoachSerializer(coaches, many=True)
     return Response(serializer.data)
