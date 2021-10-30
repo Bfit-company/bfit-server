@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'trainee_app',
     'coach_app',
     'sport_type_app',
+    'post_app',
     'rest_framework',
     'rest_framework.authtoken',
 ]

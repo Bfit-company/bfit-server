@@ -43,8 +43,8 @@ def coach_list(request):
 @api_view(['GET', 'DELETE', 'PUT'])
 def coach_detail(request, pk):
     if request.method == 'GET':
-        trainee = get_object_or_404(CoachDB, pk=pk)
-        serializer = CoachSerializer(trainee)
+        coach = get_object_or_404(CoachDB, pk=pk)
+        serializer = CoachSerializer(coach)
         return Response(serializer.data)
 
     if request.method == 'PUT':
@@ -146,7 +146,7 @@ def coach_list_search_by_parameters(request):
             rating = '1'
         if limit == '':
             limit = MAX_LIMIT  # max limit
-        if fav_sport is '':  # if empty get all sport_type
+        if fav_sport == '':  # if empty get all sport_type
             fav_sport = ~Q(person__fav_sport=None)  # not equal to None
         else:
             fav_sport = Q(person__fav_sport=fav_sport)

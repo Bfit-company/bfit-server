@@ -1,0 +1,22 @@
+from django.db import models
+from person_app.models import PersonDB
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+
+# Create your models here.
+class PostDB(models.Model):
+    person = models.ForeignKey(PersonDB, on_delete=models.CASCADE, related_name='post_detail')
+    title = models.CharField(max_length=120)
+    slug = models.SlugField(unique=True)
+    image = models.URLField(null=True,
+                            blank=True,
+                            default="https://www.essd.eu/wp-content/uploads/2020/07/ESSD_Hungary-12.jpg")
+    # height_field = models.IntegerField(default=0)
+    # width_field = models.IntegerField(default=0)
+    # draft = models.BooleanField(default=False)
+    body = models.TextField()
+    post_date = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=False, auto_now_add=False)
+
+    def __str__(self):
+        return self.title
