@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.serializers import serialize
 from django.http import HttpResponse, JsonResponse
@@ -111,7 +112,7 @@ def registration_view(request):
 @api_view(['POST', ])
 def full_user_create(request):
     data = {}
-    BASEURL = 'http://127.0.0.1:8000/'
+    BASEURL = 'http://' + get_current_site(request).domain + '/'
     # create person
     person_obj = request.data['person']
     person_obj.update({'user': request.data['person']['user']})
