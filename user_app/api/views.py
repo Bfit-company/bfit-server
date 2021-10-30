@@ -42,8 +42,12 @@ def logout_view(request):
 def login(request):
     if request.method == 'POST':
         data = {}
+        try:
+            user = UserDB.objects.get(email=request.data["username"])  # get the user_id
+        except ObjectDoesNotExist:
+            data['error'] = "the user does exist"
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-        user = UserDB.objects.get(email=request.data["username"])  # get the user_id
         user_id = user.id
         is_coach = False
         try:

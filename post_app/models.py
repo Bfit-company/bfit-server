@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.text import slugify
+
 from person_app.models import PersonDB
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -16,7 +18,12 @@ class PostDB(models.Model):
     # draft = models.BooleanField(default=False)
     body = models.TextField()
     post_date = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=False, auto_now_add=False)
+
+    # updated = models.DateField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(PostDB, self).save(*args, **kwargs)
