@@ -1,4 +1,5 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login
+from django.contrib.auth.hashers import check_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.serializers import serialize
@@ -40,13 +41,22 @@ def logout_view(request):
 
 
 @api_view(['POST', ])
-def login(request):
+def login_view(request):
     if request.method == 'POST':
         data = {}
+
+        if request.data["username"] == '' or request.data["password"] == '':
+            data['error'] = "some fields are empty"
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             user = UserDB.objects.get(email=request.data["username"])  # get the user_id
         except ObjectDoesNotExist:
-            data['error'] = "the user does exist"
+            data['error'] = "invalid email"
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+        if not check_password(request.data['password'], user.password):
+            data['error'] = "invalid password"
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = user.id

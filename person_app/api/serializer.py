@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from person_app.models import PersonDB
 from datetime import date
+
+from post_app.api.serializer import PostSerializer
 from sport_type_app.api.serializer import SportTypeSerializer
 
 
@@ -14,6 +16,7 @@ class PersonRelatedField(serializers.StringRelatedField):
 
 class PersonSerializer(serializers.ModelSerializer):
     fav_sport = SportTypeSerializer(many=True, read_only=True)
+    post = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = PersonDB

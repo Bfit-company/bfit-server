@@ -7,9 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class PostDB(models.Model):
-    person = models.ForeignKey(PersonDB, on_delete=models.CASCADE, related_name='post_detail')
+    person = models.ForeignKey(PersonDB, on_delete=models.CASCADE, related_name='post')
     title = models.CharField(max_length=120)
-    slug = models.SlugField(unique=True)
+    # slug = models.SlugField(unique=True)
     image = models.URLField(null=True,
                             blank=True,
                             default="https://www.essd.eu/wp-content/uploads/2020/07/ESSD_Hungary-12.jpg")
@@ -24,6 +24,9 @@ class PostDB(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        super(PostDB, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.slug:
+    #         self.slug = slugify(self.title)
+    #     return super().save(*args, **kwargs)
+
+
