@@ -1,34 +1,21 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.serializers import serialize
-from django.http import HttpResponse, JsonResponse
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
 import requests
 from rest_framework.utils import json
-from django.core import serializers
-from django.forms.models import model_to_dict
 from django.db.models import Q, F, Value as V
 
 from coach_app.api.serializer import CoachSerializer
 from coach_app.models import CoachDB
-from person_app.api.serializer import PersonSerializer
 from person_app.models import PersonDB
 from trainee_app.api.serializer import TraineeSerializer
 from trainee_app.models import TraineeDB
-from user_app.api.serializer import RegistrationSerializer, UserSerializer
-from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import update_last_login
-from rest_framework.authtoken.views import obtain_auth_token
 from user_app.models import UserDB
 from user_app.api.serializer import RegistrationSerializer
-from user_app import models
-from rest_framework.authtoken.views import obtain_auth_token
 
 User = get_user_model()
 
@@ -162,3 +149,45 @@ def full_user_create(request):
         PersonDB.objects.filter(id=person["id"]).delete()
 
     return JsonResponse(data, safe=False)
+
+
+from rest_framework import status
+from rest_framework import generics
+from rest_framework.response import Response
+from django.contrib.auth.models import User
+from user_app.api.serializer import ChangePasswordSerializer
+from rest_framework.permissions import IsAuthenticated
+
+class ChangePasswordView(generics.UpdateAPIView):
+    """
+    An endpoint for changing password.
+    """
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            # Check old password
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            # set_password also hashes the password that the user will get
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

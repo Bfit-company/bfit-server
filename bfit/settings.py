@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'coach_app',
     'sport_type_app',
     'post_app',
+    'location_app',
     'rest_framework',
+    'django_rest_passwordreset',
     'rest_framework.authtoken',
 ]
 
@@ -153,3 +155,4 @@ REST_FRAMEWORK = {
     #     'rest_framework.permissions.IsAuthenticated',
     # ]
 }
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

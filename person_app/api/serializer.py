@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from django.core.exceptions import ObjectDoesNotExist
+from requests import Response
+from rest_framework import serializers, status
 from person_app.models import PersonDB
 from datetime import date
 
@@ -22,10 +24,19 @@ class PersonSerializer(serializers.ModelSerializer):
         model = PersonDB
         fields = "__all__"
 
-    # def validate_gender(self,value):
-    #     if (value != 's'):
-    #         raise serializers.ValidationError("liad")
-    #     return "s"
+    # def save(self):
+    #     phone_number = self.validated_data['phone_number']
+    #
+    #     if PersonDB.objects.filter(phone_number=phone_number).exists():
+    #         raise serializers.ValidationError({'error': 'invalid phone number'})
+    #
+    #     account = User(
+    #         email=self.validated_data['email'],
+    #     )
+    #     account.set_password(password)
+    #     account.save()
+    #     return account
+
     def validate_birth_date(self, value):
         if self.calculate_age(born=value) <= 13:
             raise serializers.ValidationError("Age must be 13 and above")

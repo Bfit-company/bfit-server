@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 
 from coach_app.models import CoachDB
 from person_app.api.serializer import PersonSerializer
@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from sport_type_app.models import SportTypeDB
 from trainee_app.models import TraineeDB
 from user_app import models
+
 
 @api_view(['GET', 'POST'])
 def person_list(request):
@@ -22,6 +23,10 @@ def person_list(request):
     if request.method == 'POST':
         serializer = PersonSerializer(data=request.data)
         if serializer.is_valid():
+
+            if not check_phone_number(request.data["phone_number"]):
+                return Response({"error": "invalid phone number"}, status=status.HTTP_400_BAD_REQUEST)
+
             # add favorite sport to coach list
             fav_arr = []
             for fav in request.data["fav_sport"]:
@@ -37,7 +42,7 @@ def person_list(request):
             serializer = PersonSerializer(person_obj)
             return Response(serializer.data)
         else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -48,13 +53,15 @@ def person_detail(request, pk):
         return Response(serializer.data)
 
     if request.method == 'PUT':
-        trainee = get_object_or_404(PersonDB, pk=pk)
-        serializer = PersonSerializer(trainee, data=request.data)
+        person = get_object_or_404(PersonDB, pk=pk)
+        serializer = PersonSerializer(person, data=request.data)
         if serializer.is_valid():
+            if not check_phone_number(request.data["phone_number"]):
+                return Response({"error": "invalid phone number"}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'DELETE':
         trainee = get_object_or_404(PersonDB, pk=pk)
@@ -70,12 +77,9 @@ def check_if_person_used(data):
     if not trainee_check.exists() and not coach_check.exists():
         return True
     return False
-# @api_view(['GET', 'DELETE', 'PUT'])
-# def find_person_by_name(request, pk):
-#     if request.method == 'GET':
-#         try:
-#             PersonDB.objects.get(first_name=pk)
-#         trainee = (PersonDB, pk=pk)
-#         serializer = PersonSerializer(trainee)
-#         return Response(serializer.data)
 
+
+def check_phone_number(phone_number):
+    if PersonDB.objects.filter(phone_number=phone_number).exists():
+        return False
+    return True

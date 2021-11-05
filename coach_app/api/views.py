@@ -56,8 +56,6 @@ def coach_detail(request, pk):
             coach.rating = request.data["rating"]
             coach.save()
 
-            coach.fav_sport.set(request.data["fav_sport"])
-
             serializer = CoachSerializer(coach)
             return Response(serializer.data)
         else:
@@ -70,7 +68,7 @@ def coach_detail(request, pk):
 
 
 # find trainee by full name (first 10 matches)
-@api_view(['GET', 'DELETE', 'PUT'])
+@api_view(['GET'])
 def find_coach_by_name(request, name):
     if request.method == 'GET':
         if name is None:

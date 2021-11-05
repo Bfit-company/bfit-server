@@ -17,7 +17,8 @@ class PostDB(models.Model):
     # width_field = models.IntegerField(default=0)
     # draft = models.BooleanField(default=False)
     body = models.TextField()
-    post_date = models.DateField(auto_now_add=True)
+    create_date = models.DateField(auto_now_add=True)
+    update_date = models.DateField(auto_now=True)
 
     # updated = models.DateField(auto_now=True, auto_now_add=False)
 
