@@ -75,13 +75,13 @@ def find_coach_by_name(request, name):
             return Response("name is empty")
 
         name = name.strip()
-        trainees = CoachDB.objects.select_related('person').annotate(
+        coaches = CoachDB.objects.select_related('person').annotate(
             full_name=Concat('person__first_name', V(' '), 'person__last_name')).filter(
             Q(full_name__icontains=name) |
             Q(person__first_name=name) |
             Q(person__last_name=name))[:10]
 
-        serializer = CoachSerializer(trainees, many=True)
+        serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
 
 
