@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from coach_app.models import CoachDB
 from location_app.models import LocationDB
 from location_app.api.serializer import LocationSerializer
 # from location_app.api.permissions import
@@ -16,8 +17,12 @@ class LocationList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        # todo:
+        # validate just uniqe city if long and lat is empty
         serializer = LocationSerializer(data=request.data)
         if serializer.is_valid():
+            # serializer.save(person=PersonDB.objects.get(pk=person_id))
+            # serializer.save(coach=CoachDB.objects.get(pk=request.data.coach))
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:

@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
+
 from coach_app.models import CoachDB
 from sport_type_app.api.serializer import SportTypeSerializer
 from person_app.api.serializer import PersonSerializer
@@ -7,6 +9,7 @@ from datetime import date
 
 class CoachSerializer(serializers.ModelSerializer):
     person = PersonSerializer(read_only=True)
+    location = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = CoachDB
