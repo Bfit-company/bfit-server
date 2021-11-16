@@ -1,10 +1,14 @@
 asgiref==3.4.1
 certifi==2021.5.30
 charset-normalizer==2.0.6
+content==0.0.1
 Django==3.2.7
+django-phonenumber-field==5.2.0
+django-rest-passwordreset==1.2.1
 djangorestframework==3.12.4
 idna==3.2
 mysqlclient==2.0.3
+phonenumbers==8.12.36
 Pillow==8.3.2
 pytz==2021.1
 requests==2.26.0
