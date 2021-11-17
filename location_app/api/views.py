@@ -18,6 +18,16 @@ class LocationList(APIView):
 
     def post(self, request):
         serializer = LocationSerializer(data=request.data)
+        city = request.data['city']
+        country = city['country']
+        if city:
+            city_serializer = CitySerializer(data=city)
+            if city_serializer.is_valid():
+                city_serializer.save()
+                print("city saved")
+            else:
+                return Response(city_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
