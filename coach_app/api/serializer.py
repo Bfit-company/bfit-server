@@ -9,7 +9,7 @@ from datetime import date
 
 class CoachSerializer(serializers.ModelSerializer):
     person = PersonSerializer(read_only=True)
-    location = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    location_coach = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = CoachDB
