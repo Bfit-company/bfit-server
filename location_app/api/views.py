@@ -1,4 +1,5 @@
 import location as location
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, F, Value as V
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from coach_app.models import CoachDB
 from location_app.models import LocationDB, CountryDB, CityDB
 from location_app.api.serializer import LocationSerializer, CitySerializer, CountrySerializer
+from coach_app.api.serializer import CoachSerializer
 # from location_app.api.permissions import
 from rest_framework.views import APIView
 
@@ -77,7 +79,10 @@ class LocationList(APIView):
         # location_obj.update({"country": city['country']})
         serializer = LocationSerializer(data=location_obj)
         if serializer.is_valid():
-            serializer.save(coach=CoachDB.objects.get(pk=request.data['coach']), city=CityDB.objects.get(pk=city_pk))
+            try:
+                serializer.save(coach=CoachDB.objects.get(pk=request.data['coach']), city=CityDB.objects.get(pk=city_pk))
+            except ObjectDoesNotExist:
+                return Response("not found", status=status.HTTP_404_NOT_FOUND)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -183,6 +188,18 @@ class CountryDetail(APIView):
         country.delete()
         return Response("Delete Successfully", status=status.HTTP_200_OK)
 
-# def cityAndCountryCheck(country,city,long,lat):
-#     if country and not CountryDB.objects.filter(english_name__iexact=country.lower()).exists():
-#
+
+class GetCoachesByCityName(APIView):
+    def get(self, request, city_name):
+        if city_name is None:
+            return Response("city name is empty")
+
+        query_coach_list = LocationDB.objects.select_related('city', 'coach').filter(
+                Q(city__name=city_name)).values('coach').distinct()
+        # c = CoachDB.objects.get(pk=coaches)
+        my_filter_qs = Q()
+        for query in query_coach_list:
+            my_filter_qs = my_filter_qs | Q(id=query['coach'])
+        coaches = CoachDB.objects.filter(my_filter_qs)
+        serializer = CoachSerializer(coaches, many=True)
+        return Response(serializer.data)
