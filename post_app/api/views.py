@@ -22,9 +22,19 @@ def post_list(request):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetPostsDetailByPostList(APIView):
+    def post(self,request):
+        posts = PostDB.objects.filter(id__in=request.data['posts'])
+        if posts.exists():
+            serializer = PostSerializer(posts, many=True)
+            return Response(serializer.data, status.HTTP_200_OK)
+        else:
+            return Response({"error": "not found"}, status.HTTP_404_NOT_FOUND)
 
 
 class PostDetail(APIView):

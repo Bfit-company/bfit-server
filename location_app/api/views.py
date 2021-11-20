@@ -38,16 +38,6 @@ def checkCity(city):
     return None
 
 
-# def isCoachInCity(city, coach_id):
-#     if LocationDB.objects.filter(city=city, coach=coach_id).exists():
-#         return True
-#     return False
-#
-#
-# def isLongAndLatExist(long, lat):
-#     if LocationDB.objects.filter(lat=lat, long=long).exists():
-#         return True
-#     return False
 
 class LocationList(APIView):
     def get(self, request):
