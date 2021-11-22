@@ -94,7 +94,8 @@ WSGI_APPLICATION = 'bfit.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', #django.db.backends.mysql
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2', #django.db.backends.mysql
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'BFIT',
         'HOST': '127.0.0.1',
         'PORT': '3306',
