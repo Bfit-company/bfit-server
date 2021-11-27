@@ -7,9 +7,7 @@ cycler==0.11.0
 Cython==0.29.24
 dj-database-url==0.5.0
 Django==3.2.9
-django-heroku==0.0.0
 django-phonenumber-field==5.2.0
-django-rest-passwordreset==1.2.1
 djangorestframework==3.12.4
 fonttools==4.28.2
 gunicorn==20.1.0
