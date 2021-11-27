@@ -193,3 +193,17 @@ class GetCoachesByCityName(APIView):
         coaches = CoachDB.objects.filter(my_filter_qs)
         serializer = CoachSerializer(coaches, many=True)
         return Response(serializer.data)
+
+class GetCoachesWithLongLat(APIView):
+    def get(self, request):
+
+        # query_coach_list = LocationDB.objects.select_related('city', 'coach').filter(
+        #         Q(long__isnull=False)).values('coach').distinct()
+        # # c = CoachDB.objects.get(pk=coaches)
+        # my_filter_qs = Q()
+        # for query in query_coach_list:
+        #     my_filter_qs = my_filter_qs | Q(id=query['coach'])
+
+        locations = LocationDB.objects.filter(long__isnull=False, lat__isnull=False)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data)
