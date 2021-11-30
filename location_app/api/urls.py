@@ -7,7 +7,9 @@ from location_app.api.views import (
     CountryDetail,
     CityDetail,
     GetCoachesByCityName,
-    GetCoachesWithLongLat
+    GetCoachesWithLongLat,
+    GetLocationsDetailByCoachList,
+    GetLocationsDetailByLocationList
 )
 
 urlpatterns = [
@@ -19,4 +21,10 @@ urlpatterns = [
     path('city_detail/<int:pk>/', CityDetail.as_view(), name='city_detail'),
     path('get_coach_by_city_name/<str:city_name>/', GetCoachesByCityName.as_view(), name='get_coach_by_city_name'),
     path('get_coaches_with_long_lat/', GetCoachesWithLongLat.as_view(), name='get_coaches_with_long_lat'),
+    path('get_locations_detail_by_coach_list/',
+         GetLocationsDetailByCoachList.as_view(),
+         name='get_locations_detail_by_coach_list'),
+    path('get_locations_detail_by_location_list/',
+         GetLocationsDetailByLocationList.as_view(),
+         name='get_locations_detail_by_location_list'),
 ]

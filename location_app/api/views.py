@@ -38,7 +38,6 @@ def checkCity(city):
     return None
 
 
-
 class LocationList(APIView):
     def get(self, request):
         location_list = LocationDB.objects.all()
@@ -70,7 +69,8 @@ class LocationList(APIView):
         serializer = LocationSerializer(data=location_obj)
         if serializer.is_valid():
             try:
-                serializer.save(coach=CoachDB.objects.get(pk=request.data['coach']), city=CityDB.objects.get(pk=city_pk))
+                serializer.save(coach=CoachDB.objects.get(pk=request.data['coach']),
+                                city=CityDB.objects.get(pk=city_pk))
             except ObjectDoesNotExist:
                 return Response("not found", status=status.HTTP_404_NOT_FOUND)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -185,7 +185,7 @@ class GetCoachesByCityName(APIView):
             return Response("city name is empty")
 
         query_coach_list = LocationDB.objects.select_related('city', 'coach').filter(
-                Q(city__name=city_name)).values('coach').distinct()
+            Q(city__name=city_name)).values('coach').distinct()
 
         if not query_coach_list:  # if query_coach_list is empty return empty
             return Response([], status=status.HTTP_404_NOT_FOUND)
@@ -203,3 +203,30 @@ class GetCoachesWithLongLat(APIView):
         locations = LocationDB.objects.filter(long__isnull=False, lat__isnull=False)
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetCoachLocations(APIView):
+    def get(self, request, coach_id):
+        locations = LocationDB.objects.filter(coach=coach_id)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetLocationsDetailByCoachList(APIView):
+    def post(self, request):
+        locations = LocationDB.objects.filter(coach__in=request.data['coaches_id'])
+        if locations.exists():
+            serializer = LocationSerializer(locations, many=True)
+            return Response(serializer.data, status.HTTP_200_OK)
+        else:
+            return Response({"error": "not found"}, status.HTTP_404_NOT_FOUND)
+
+
+class GetLocationsDetailByLocationList(APIView):
+    def post(self, request):
+        locations = LocationDB.objects.filter(id__in=request.data['locations_id'])
+        if locations.exists():
+            serializer = LocationSerializer(locations, many=True)
+            return Response(serializer.data, status.HTTP_200_OK)
+        else:
+            return Response({"error": "not found"}, status.HTTP_404_NOT_FOUND)
