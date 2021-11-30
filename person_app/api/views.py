@@ -25,7 +25,7 @@ def person_list(request):
         serializer = PersonSerializer(data=request.data)
         if serializer.is_valid():
 
-            if phone_number_exists(request.data["phone_number"]):
+            if request.data["phone_number"] and phone_number_exists(request.data["phone_number"]):
                 return Response({"error": "invalid phone number"}, status=status.HTTP_400_BAD_REQUEST)
 
             # add favorite sport to coach list

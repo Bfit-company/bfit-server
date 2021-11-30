@@ -186,10 +186,20 @@ class GetCoachesByCityName(APIView):
 
         query_coach_list = LocationDB.objects.select_related('city', 'coach').filter(
                 Q(city__name=city_name)).values('coach').distinct()
-        # c = CoachDB.objects.get(pk=coaches)
+
+        if not query_coach_list:  # if query_coach_list is empty return empty
+            return Response([], status=status.HTTP_404_NOT_FOUND)
         my_filter_qs = Q()
         for query in query_coach_list:
             my_filter_qs = my_filter_qs | Q(id=query['coach'])
+
         coaches = CoachDB.objects.filter(my_filter_qs)
         serializer = CoachSerializer(coaches, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetCoachesWithLongLat(APIView):
+    def get(self, request):
+        locations = LocationDB.objects.filter(long__isnull=False, lat__isnull=False)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

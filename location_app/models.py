@@ -53,4 +53,4 @@ class LocationDB(models.Model):
         # unique_together = ('city', 'coach',)
 
     def __str__(self):
-        return self.coach.person.first_name + ' ' + self.coach.person.last_name + ' city: ' + self.city
+        return self.coach.person.full_name + ' city: ' + self.city

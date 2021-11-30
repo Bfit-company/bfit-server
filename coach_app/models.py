@@ -13,4 +13,4 @@ class CoachDB(models.Model):
     # todo:
     # post_id , practice
     def __str__(self):
-        return self.person.first_name
+        return self.person.full_name

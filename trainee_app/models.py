@@ -10,4 +10,4 @@ class TraineeDB(models.Model):
     person = models.OneToOneField(PersonDB, on_delete=models.CASCADE,related_name='person',unique=True)
 
     def __str__(self):
-        return self.person.first_name
+        return self.person.full_name
