@@ -34,7 +34,7 @@ class GetPostsDetailByPostList(APIView):
             serializer = PostSerializer(posts, many=True)
             return Response(serializer.data, status.HTTP_200_OK)
         else:
-            return Response({"error": "not found"}, status.HTTP_404_NOT_FOUND)
+            return Response([], status=status.HTTP_404_NOT_FOUND)
 
 
 class PostDetail(APIView):

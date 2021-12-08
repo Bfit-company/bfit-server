@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from Utils.utils import Utils
 from coach_app.models import CoachDB
 from location_app.models import LocationDB, CountryDB, CityDB
 from location_app.api.serializer import LocationSerializer, CitySerializer, CountrySerializer
@@ -189,12 +190,9 @@ class GetCoachesByCityName(APIView):
 
         if not query_coach_list:  # if query_coach_list is empty return empty
             return Response([], status=status.HTTP_404_NOT_FOUND)
-        my_filter_qs = Q()
-        for query in query_coach_list:
-            my_filter_qs = my_filter_qs | Q(id=query['coach'])
+        coaches_detail = Utils.get_detail_by_list_id(CoachDB, query_coach_list, 'coach')
 
-        coaches = CoachDB.objects.filter(my_filter_qs)
-        serializer = CoachSerializer(coaches, many=True)
+        serializer = CoachSerializer(coaches_detail, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -230,3 +228,18 @@ class GetLocationsDetailByLocationList(APIView):
             return Response(serializer.data, status.HTTP_200_OK)
         else:
             return Response({"error": "not found"}, status.HTTP_404_NOT_FOUND)
+
+
+class CoachCityByCoachIdList(APIView):
+    def post(self, request):
+        cities = LocationDB.objects.select_related('city')\
+            .filter(coach_id__in=request.data['coaches_id'])\
+            .values('city_id')\
+            .distinct()
+
+        if cities.exists():
+            cities_detail = Utils.get_detail_by_list_id(CityDB, cities, 'city')
+            serializer = CitySerializer(cities_detail, many=True)
+            return Response(serializer.data, status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_404_NOT_FOUND)
