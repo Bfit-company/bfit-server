@@ -238,7 +238,7 @@ class CoachCityByCoachIdList(APIView):
             .distinct()
 
         if cities.exists():
-            cities_detail = Utils.get_detail_by_list_id(CityDB, cities, 'city')
+            cities_detail = Utils.get_detail_by_list_id(CityDB, cities, 'city_id')
             serializer = CitySerializer(cities_detail, many=True)
             return Response(serializer.data, status.HTTP_200_OK)
         else:

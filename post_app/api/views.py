@@ -38,7 +38,7 @@ class GetPostsDetailByPostList(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [PostUserOrReadOnly, AdminOrReadOnly]
+    permission_classes = [PostUserOrReadOnly]
 
     def get(self, request, pk):
         post = get_object_or_404(PostDB, pk=pk)

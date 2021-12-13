@@ -3,6 +3,8 @@ from django.db.models.functions import Concat
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView
+
 from coach_app.api.serializer import CoachSerializer
 from coach_app.models import CoachDB
 from rest_framework.response import Response
@@ -173,20 +175,46 @@ def coach_list_by_parameters_sorted(request):
             limit = MAX_LIMIT  # max limit
         if fav_sport == '':  # if empty get all sport_type
             fav_sport = ~Q(person__fav_sport=None)  # not equal to None
-        else:
-            fav_sport = Q(person__fav_sport=fav_sport)
+        else:  # fav_sport can be more than one
+            sport_type_list = [int(x) for x in fav_sport.split(',')]
+            fav_sport = Q(person__fav_sport__in=sport_type_list)
 
         if is_date_joined_sort != '':
             coaches = list(CoachDB.objects.select_related('person').filter(
-                Q(person__full_name__icontains=name) | fav_sport)
-                .order_by("-date_joined")[:int(limit)])
+                Q(person__full_name__icontains=name), fav_sport)
+                           .order_by("-date_joined")[:int(limit)])
         elif is_rating_sort != '':
             coaches = list(CoachDB.objects.select_related('person').filter(
-                Q(person__full_name__icontains=name) | fav_sport).order_by('-rating')[:int(limit)])
+                Q(person__full_name__icontains=name), fav_sport).order_by('-rating')[:int(limit)])
         else:
             coaches = list(CoachDB.objects.select_related('person').filter(
-                Q(person__full_name__icontains=name) | fav_sport)[:int(limit)])
+                Q(person__full_name__icontains=name), fav_sport)[:int(limit)])
 
     shuffle(coaches)
     serializer = CoachSerializer(coaches, many=True)
     return Response(serializer.data)
+
+
+class ChangeCoachRating(APIView):
+    def put(self, request, pk):
+        coach = get_object_or_404(CoachDB, pk=pk)
+        if request.data["new_rating"] and coach.number_of_rating is not None:
+            new_rating = self.calc_new_avg(
+                coach.number_of_rating,
+                coach.rating,
+                request.data["new_rating"])
+
+            new_number_of_rating = coach.number_of_rating + 1
+            data = {"number_of_rating": new_number_of_rating,
+                    "rating": new_rating}
+            serializer = CoachSerializer(coach, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def calc_new_avg(self, number_of_rating, rating_avg, new_rating):
+        return ((number_of_rating * rating_avg) + new_rating) / (number_of_rating + 1)

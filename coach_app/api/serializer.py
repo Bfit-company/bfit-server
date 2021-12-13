@@ -16,15 +16,15 @@ class CoachSerializer(serializers.ModelSerializer):
         model = CoachDB
         fields = "__all__"
 
-    def update(self, instance, validated_data):
-        nested_serializer = self.fields['person']
-        nested_instance = instance.profile
-        # note the data is `pop`ed
-        nested_data = validated_data.pop('person')
-        nested_serializer.update(nested_instance, nested_data)
-        # this will not throw an exception,
-        # as `profile` is not part of `validated_data`
-        return super(CoachSerializer, self).update(instance, validated_data)
+    # def update(self, instance, validated_data):
+    #     nested_serializer = self.fields['person']
+    #     nested_instance = instance.profile
+    #     # note the data is `pop`ed
+    #     nested_data = validated_data.pop('person')
+    #     nested_serializer.update(nested_instance, nested_data)
+    #     # this will not throw an exception,
+    #     # as `profile` is not part of `validated_data`
+    #     return super(CoachSerializer, self).update(instance, validated_data)
 
     # def validate(self, value):
     #     if not self.validated_data.is_coach:
