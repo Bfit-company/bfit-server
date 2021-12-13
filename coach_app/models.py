@@ -6,7 +6,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 class CoachDB(models.Model):
     person = models.OneToOneField(PersonDB, on_delete=models.CASCADE, related_name='coach_detail')
-    rating = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)],blank=True,default=1)
+    rating = models.IntegerField(validators=[MaxValueValidator(10), MinValueValidator(1)],blank=True,default=3)
+    number_of_rating = models.IntegerField(blank=True, default=0)
+    price = models.IntegerField(blank=True, default=0)
+    is_train_at_home = models.BooleanField(default=False)
     description = models.CharField(max_length=255, blank=True)
     date_joined = models.DateTimeField(verbose_name='date_joined', auto_now_add=True)
 
