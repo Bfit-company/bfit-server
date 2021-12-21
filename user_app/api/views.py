@@ -151,6 +151,16 @@ def full_user_create(request):
     return JsonResponse(data, safe=False)
 
 
+def isValidateUserRegister(password, password2, email):
+
+    if password != password2:
+        return {'error': 'passwords invalid'}
+
+    if User.objects.filter(email=email).exists():
+        return {'error': 'Email already exist!'}
+
+    return True
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
