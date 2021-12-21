@@ -21,14 +21,20 @@ def post_list(request):
     if request.method == 'POST':
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
+            if (serializer.validated_data.get('body') is None or
+                serializer.validated_data.get('body') == '') and \
+                    (serializer.validated_data.get('image') is None or
+                     serializer.validated_data.get('image') == ''):
+                return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
             serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetPostsDetailByPostList(APIView):
-    def post(self,request):
+    def post(self, request):
         posts = PostDB.objects.filter(id__in=request.data['posts'])
         if posts.exists():
             serializer = PostSerializer(posts, many=True)
@@ -43,7 +49,7 @@ class PostDetail(APIView):
     def get(self, request, pk):
         post = get_object_or_404(PostDB, pk=pk)
         serializer = PostSerializer(post)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         post = get_object_or_404(PostDB, pk=pk)

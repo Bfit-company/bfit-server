@@ -28,6 +28,7 @@ class PersonDB(models.Model):
                                     blank=True,
                                     default="https://www.essd.eu/wp-content/uploads/2020/07/ESSD_Hungary-12.jpg")
     business_email = models.EmailField(null=True, blank=False)
+    instagram_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.full_name
