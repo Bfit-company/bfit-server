@@ -26,4 +26,5 @@ urlpatterns = [
     path('coach/', include('coach_app.api.urls')),
     path('post/', include('post_app.api.urls')),
     path('location/', include('location_app.api.urls')),
+    path('rating/', include('rating_app.api.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-trbjq74vx)i2x(k&m_j(m(xj^u6*4(%jx@ac^a06kz2bh1cf$8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'sport_type_app',
     'post_app',
     'location_app',
+    'rating_app',
     'rest_framework',
     'django_rest_passwordreset',
     'rest_framework.authtoken',

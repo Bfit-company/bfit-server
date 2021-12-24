@@ -196,6 +196,45 @@ def coach_list_by_parameters_sorted(request):
 
 
 class ChangeCoachRating(APIView):
+    def change_coach_rating(self, coach_id, user_rating, request_method, preview_rating=None):
+        coach = get_object_or_404(CoachDB, pk=coach_id)
+        if user_rating and coach.number_of_rating is not None:
+            new_number_of_rating = coach.number_of_rating  # first initial
+            coach_rating = coach.rating
+
+            if request_method == 'POST':
+                new_number_of_rating = coach.number_of_rating + 1
+            elif request_method == 'DELETE':
+                new_number_of_rating = coach.number_of_rating - 1
+                user_rating = (-1) * user_rating
+            elif request_method == 'PUT':
+                if preview_rating is None:
+                    return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+                # reverse the average
+                user_rating = user_rating - preview_rating
+                new_number_of_rating = coach.number_of_rating
+
+            new_rating = self.calc_new_avg(
+                number_of_rating=coach.number_of_rating,
+                rating_avg=coach_rating,
+                new_rating=user_rating,
+                new_number_of_rating=new_number_of_rating)
+
+            new_rating = round(new_rating, 1)  # get one digit after dot
+
+            data = {"number_of_rating": new_number_of_rating,
+                    "rating": new_rating}
+            serializer = CoachSerializer(coach, data=data, partial=True)
+            if serializer.is_valid():
+                return serializer, Response(serializer.validated_data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def calc_new_avg(self, number_of_rating, rating_avg, new_rating, new_number_of_rating ):
+        return ((number_of_rating * rating_avg) + new_rating) / new_number_of_rating
+
     def put(self, request, pk):
         coach = get_object_or_404(CoachDB, pk=pk)
         if request.data["new_rating"] and coach.number_of_rating is not None:
@@ -215,9 +254,6 @@ class ChangeCoachRating(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def calc_new_avg(self, number_of_rating, rating_avg, new_rating):
-        return ((number_of_rating * rating_avg) + new_rating) / (number_of_rating + 1)
 
 
 class SearchCoach(APIView):

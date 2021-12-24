@@ -5,6 +5,7 @@ from person_app.models import PersonDB
 from datetime import date
 
 from post_app.api.serializer import PostSerializer
+from rating_app.api.serializer import RatingSerializer
 from sport_type_app.api.serializer import SportTypeSerializer
 
 
@@ -19,6 +20,7 @@ class PersonRelatedField(serializers.StringRelatedField):
 class PersonSerializer(serializers.ModelSerializer):
     fav_sport = SportTypeSerializer(many=True, read_only=True)
     post = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    rating_coach = serializers.SerializerMethodField()
 
     class Meta:
         model = PersonDB
@@ -36,6 +38,9 @@ class PersonSerializer(serializers.ModelSerializer):
     #     account.set_password(password)
     #     account.save()
     #     return account
+
+    def get_rating_coach(self, obj):
+        return RatingSerializer(obj.rating.all(), many=True).data
 
     def validate_birth_date(self, value):
         if self.calculate_age(born=value) <= 13:
