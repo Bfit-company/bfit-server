@@ -18,7 +18,7 @@ class GeneralRatingSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = RatingDB
-        fields = ("id", "rating_coach_id", "created")
+        fields = "__all__"
 
 
 class RatesSerializer(serializers.ModelSerializer):

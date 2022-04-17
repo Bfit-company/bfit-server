@@ -1,16 +1,29 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
 from coach_app.api.views import ChangeCoachRating
 from coach_app.models import CoachDB
 from person_app.models import PersonDB
-from rating_app.api.serializer import GeneralRatingSerializer
+from rating_app.api.serializer import GeneralRatingSerializer, RatingSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-
+import coreapi
 from user_app import models
 from rating_app.models import RatingDB
+from rest_framework.schemas import AutoSchema
+
+
+class RatingViewSchema(AutoSchema):
+    def get_manual_fields(self, path, method):
+        extra_fields = []
+        if method.lower() in ['post', 'put']:
+            extra_fields = [
+                coreapi.Field('desc')
+            ]
+        manual_fields = super().get_manual_fields(path, method)
+        return manual_fields + extra_fields
 
 
 def rating_handler(request, rating_obj=None, preview_rating=None):
@@ -45,7 +58,8 @@ def rating_handler(request, rating_obj=None, preview_rating=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RatingList(APIView):
+class RatingList(GenericAPIView):
+    serializer_class = RatingSerializer
 
     def get(self, request):
         # permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -77,17 +91,40 @@ class RatingList(APIView):
         #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RatingDetail(APIView):
+class RatingDetail(GenericAPIView):
+    serializer_class = RatingSerializer
+
+    def put(self, request, pk):
+        rating = get_object_or_404(RatingDB, pk=pk)
+        serializer = RatingSerializer(rating, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk):
+        rating = get_object_or_404(RatingDB, pk=pk)
+        rating.delete()
+        return Response("Delete Successfully", status=status.HTTP_200_OK)
+
+
+class RatingDetailDelete(GenericAPIView):
+    serializer_class = RatingSerializer
+
+    def post(self, request):
+        rating_obj = get_object_or_404(RatingDB,
+                                       person_id=request.data["person_id"],
+                                       rating_coach_id=request.data["rating_coach_id"])
+        rating_obj.delete()
+        return Response("Delete Successfully", status=status.HTTP_200_OK)
+
+class RatingDetailUpdate(GenericAPIView):
+    serializer_class = RatingSerializer
 
     def put(self, request):
         rating_obj = get_object_or_404(RatingDB,
                                        person_id=request.data["person_id"],
                                        rating_coach_id=request.data["rating_coach_id"])
 
-        return rating_handler(request, rating_obj, rating_obj.rating)
-
-    def delete(self, request):
-        rating_obj = get_object_or_404(RatingDB,
-                                       person_id=request.data["person_id"],
-                                       rating_coach_id=request.data["rating_coach_id"])
         return rating_handler(request, rating_obj, rating_obj.rating)

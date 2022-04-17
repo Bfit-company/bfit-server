@@ -1,12 +1,15 @@
+import boto3
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 import requests
 from rest_framework.utils import json
 from django.db.models import Q, F, Value as V
+from rest_framework.views import APIView
 
 from coach_app.api.serializer import CoachSerializer
 from coach_app.models import CoachDB
@@ -152,7 +155,6 @@ def full_user_create(request):
 
 
 def isValidateUserRegister(password, password2, email):
-
     if password != password2:
         return {'error': 'passwords invalid'}
 
@@ -161,12 +163,26 @@ def isValidateUserRegister(password, password2, email):
 
     return True
 
+
+class UpdateUser(APIView):
+
+    def put(self, request, pk):
+        coach = get_object_or_404(CoachDB, pk=pk)
+        serializer = CoachSerializer(coach, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(person=request.data["person"])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from user_app.api.serializer import ChangePasswordSerializer
 from rest_framework.permissions import IsAuthenticated
+
 
 class ChangePasswordView(generics.UpdateAPIView):
     """
@@ -201,3 +217,45 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response(response)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# from django.shortcuts import render, HttpResponse
+# from django.core.mail import send_mail as sm
+#
+#
+# @api_view(['POST', ])
+# def send_mail(request):
+#     if request.method == 'POST':
+#         ses_client = boto3.client("ses", region_name="eu-central-1")
+#         CHARSET = "UTF-8"
+#
+#         response = ses_client.send_email(
+#             Destination={
+#                 "ToAddresses": [
+#                     "abhishek@learnaws.org",
+#                 ],
+#             },
+#             Message={
+#                 "Body": {
+#                     "Text": {
+#                         "Charset": CHARSET,
+#                         "Data": "Hello, world!",
+#                     }
+#                 },
+#                 "Subject": {
+#                     "Charset": CHARSET,
+#                     "Data": "Amazing Email Tutorial",
+#                 },
+#             },
+#             Source="abhishek@learnaws.org",
+#         )
+
+        # res = sm(
+        #     subject='Subject here',
+        #     message='Here is thedjango message.',
+        #     from_email='bfit.company1@gmail.com',
+        #     recipient_list=['liadhazoot5@gmail.com'],
+        #     fail_silently=False,
+        # )
+        #
+        # return HttpResponse(f"Email sent to {res} members")

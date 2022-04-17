@@ -232,7 +232,7 @@ class ChangeCoachRating(APIView):
         else:
             return Response({"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def calc_new_avg(self, number_of_rating, rating_avg, new_rating, new_number_of_rating ):
+    def calc_new_avg(self, number_of_rating, rating_avg, new_rating, new_number_of_rating):
         return ((number_of_rating * rating_avg) + new_rating) / new_number_of_rating
 
     def put(self, request, pk):

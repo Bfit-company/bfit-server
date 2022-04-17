@@ -44,6 +44,7 @@ class GetPostsDetailByPostList(APIView):
 
 
 class PostDetail(APIView):
+    serializer_class = PostSerializer
     permission_classes = [PostUserOrReadOnly]
 
     def get(self, request, pk):

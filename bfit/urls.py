@@ -14,17 +14,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='My Project Swagger')
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('account/', include('user_app.api.urls')),
-    path('sport_type/', include('sport_type_app.api.urls')),
-    path('trainee/', include('trainee_app.api.urls')),
-    path('person/', include('person_app.api.urls')),
-    path('coach/', include('coach_app.api.urls')),
-    path('post/', include('post_app.api.urls')),
-    path('location/', include('location_app.api.urls')),
-    path('rating/', include('rating_app.api.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  path('admin/', admin.site.urls),
+                  path('account/', include('user_app.api.urls')),
+                  path('sport_type/', include('sport_type_app.api.urls')),
+                  path('trainee/', include('trainee_app.api.urls')),
+                  path('person/', include('person_app.api.urls')),
+                  path('coach/', include('coach_app.api.urls')),
+                  path('post/', include('post_app.api.urls')),
+                  path('location/', include('location_app.api.urls')),
+                  path('rating/', include('rating_app.api.urls')),
+                  path('', schema_view),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
